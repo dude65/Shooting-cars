@@ -50,10 +50,10 @@ public class Window extends JFrame {
 		panel.setLayout(gl);
 		
 		panel.setPreferredSize(new Dimension(100,500));
-		//Velikost obsahu
+		//Size of the content - doesn't work!
 		
-		panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
-		//Rámeèek okolo obsahu
+		panel.setBorder(BorderFactory.createEmptyBorder(100,350,100,350));
+		//Empty border around the content
 		
 		gl.setVgap(10);
 		
