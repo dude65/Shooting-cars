@@ -9,6 +9,11 @@ public class Window extends JFrame {
 	
 	public Window () {
 		super ("Shooting cars");
+	}
+	
+	@SuppressWarnings("static-access")
+	public void initialize() {
+		
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
 		
@@ -16,16 +21,12 @@ public class Window extends JFrame {
 		srb = new BorderLayout();
 		con.setLayout(srb);
 		setContentPane(con);
-	}
-	
-	@SuppressWarnings("static-access")
-	public void initialize() {
+		
 		con.add(Heading(), srb.NORTH);
 		con.add(Menu(), srb.CENTER);
 		con.add(Bottom(), srb.SOUTH);
 		
 		setContentPane(con);
-		
 		
 	}
 	
