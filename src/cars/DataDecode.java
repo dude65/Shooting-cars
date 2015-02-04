@@ -112,7 +112,7 @@ public class DataDecode {
 		ArrayList<String> allowedKeys = new ArrayList<String>();
 		
 		switch (type) {
-			case "map": String[] add = {"data","background","buildings","terrain"}; allowedKeys.addAll(Arrays.asList(add)); break;
+			case "map": String[] add = {"data","background","finishline","buildings","terrain"}; allowedKeys.addAll(Arrays.asList(add)); break;
 			default:  break;
 		}
 		
@@ -127,6 +127,7 @@ public class DataDecode {
 		switch (key) {
 			case "data": v.add("€id"); v.add("€name"); v.add("€description"); break;
 			case "background": v.add("€background"); v.add("€music"); break;
+			case "finishline": v.add("€direction"); v.add("€xline"); v.add("€yline"); v.add("€xlights"); v.add("€ylights"); break;
 			case "buildings": v.add("€workhouse"); v.add("€mill"); break;
 			case "terrain":
 				String[] mapField = new String[150];

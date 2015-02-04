@@ -7,15 +7,15 @@ public class CantLoadException extends Exception{
 	private static final long serialVersionUID = 1L;
 	String description;
 	
-	CantLoadException () {
+	public CantLoadException () {
 		description = "File cannot be loaded";
 	}
 	
-	CantLoadException (String dsc) {
+	public CantLoadException (String dsc) {
 		description = dsc;
 	}
 	
-	CantLoadException (String dsc, String data) {
+	public CantLoadException (String dsc, String data) {
 		description = dsc;
 		
 		System.err.println(data);

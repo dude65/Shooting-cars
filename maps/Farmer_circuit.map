@@ -6,7 +6,15 @@ data {
 
 background {
 €background = "grassland";
-€music = "a";
+€music = "gameboy.mp3";
+}
+
+finishline {
+€direction = "right";
+€xline = "6";
+€yline = "9";
+€xlights = "7";
+€ylights = "8";
 }
 
 buildings {

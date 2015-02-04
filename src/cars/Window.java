@@ -18,11 +18,13 @@ public class Window extends JFrame {
 		super ("Shooting cars");
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
+		setFocusable(true);
 		
 		con = getContentPane();
 		srb = new BorderLayout();
 		con.setLayout(srb);
 		setContentPane(con);
+		
 		
 	}
 	

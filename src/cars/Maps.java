@@ -6,9 +6,10 @@ import java.util.Map;
 
 public class Maps {	
 	public String id;
-	private Map<String,Map<String,String>> data;
+	protected Map<String,Map<String,String>> data;
+	protected String lightsColor = "red";
 	
-	private ArrayList<String> terrain = new ArrayList<String>();
+	protected ArrayList<String> terrain = new ArrayList<String>();
 	
 	public Maps (String path) throws IOException, CantLoadException {
 		DataDecode decoder = new DataDecode(path, "map");
@@ -34,6 +35,14 @@ public class Maps {
 		}
 		
 		return terrain;
+	}
+	
+	public Map<String,String> getLine() {
+		return data.get("finishline");
+	}
+	
+	public String lightsPath() {
+		return "./img/route/lights_"+lightsColor+".png";
 	}
 	
 	private void sortTerrainData() {
