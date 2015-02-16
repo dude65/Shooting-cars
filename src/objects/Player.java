@@ -19,13 +19,20 @@ public abstract class Player extends MovingObject {
 	
 	public Player(int id, int x, int y, GameArea a, String car) throws CantLoadException {
 		super(x, y, a);
+		initiate(id, car);
+	}
+	
+	public Player(int id, int gX, int sX, int gY, int sY, GameArea a, String car) throws CantLoadException {
+		super(gX, sX, gY, sY, a);
+		initiate(id, car);
+	}
+	
+	private void initiate(int id, String car) throws CantLoadException {
 		this.id = id;
 		
 		ed = new EditImages();
 		vehicle = car;
 		loadImages();
-		
-		
 	}
 
 	@Override

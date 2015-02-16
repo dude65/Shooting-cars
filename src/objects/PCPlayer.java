@@ -17,10 +17,18 @@ public class PCPlayer extends Player {
 	boolean[] key = {false, false, false, false};
 	Window w;
 	
-	public PCPlayer(int id, int x, int y, GameArea a, String car, Window w) throws CantLoadException {
+	public PCPlayer(int id, int x, int y, GameArea a, String car) throws CantLoadException {
 		super(id, x, y, a, car);
-		this.w = w;
-		
+		initiate();
+	}
+	
+	public PCPlayer(int id, int gX, int sX, int gY, int sY, GameArea a, String car) throws CantLoadException {
+		super(id, gX, sX, gY, sY, a, car);
+		initiate();
+	}
+	
+	private void initiate() {
+		this.w = a.w;
 		w.addKeyListener(new KListener());
 	}
 	
@@ -67,6 +75,11 @@ public class PCPlayer extends Player {
 		
 		@Override
 		public void keyPressed(KeyEvent e) {
+			/*if (e.getKeyCode() == 10 && slow) {
+				speed /= 2;
+				slow = false;
+			}
+			if (e.getKeyCode() == 16) slow = true;*/
 			if (shortcuts.contains(e.getKeyCode())) key[shortcuts.indexOf(e.getKeyCode())] = true;
 			
 		}

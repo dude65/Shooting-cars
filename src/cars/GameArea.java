@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,10 +19,10 @@ public class GameArea extends JPanel{
 	public float coef;
 	public int square;
 	
-	LoadMap loading;
-	Window w;
+	public LoadMap loading;
+	public Window w;
 	
-	Map<String, BufferedImage> images = new HashMap<String, BufferedImage>();
+	public Map<String, BufferedImage> images = new HashMap<String, BufferedImage>();
 	
 	public GameArea(Maps m, Window win) throws CantLoadException{
 		tDec = new TerrainDecoder();
@@ -30,7 +31,7 @@ public class GameArea extends JPanel{
 		this.setPreferredSize(new Dimension(900,640));;
 		this.setBackground(Color.decode("#a7835f"));
 		
-		loading = new LoadMap(this, images, map, tDec, w);
+		loading = new LoadMap(this);
 		loading.load();
 		
 	}
@@ -39,11 +40,12 @@ public class GameArea extends JPanel{
 		super.paintComponent(g);
 		setCoeficient();
 		setBackground(g);
-		drawTerrain(g);
-		drawBuildings(g);
-		drawLine(g);
-		drawLights(g);
-		drawMovingObjects(g);
+		
+		ArrayList<objects.Object> objList = new ArrayList<objects.Object>();
+		objList.addAll(loading.stationary);
+		objList.addAll(loading.moveAble);
+		
+		drawObjects(g, objList);
 		
 	}
 	
@@ -61,86 +63,18 @@ public class GameArea extends JPanel{
 		g.drawImage(bgImage, getX(1), getY(1), 15 * square, 10 * square, null);
 	}
 	
-	//draw terrain images
-	private void drawTerrain(Graphics g) {
-		int x = 1;
-		int y = 1;
-		
-		for (int i = 0; i < 150; i++) {
-			if (x > 15) {
-				y++;
-				x = 1;
-			}
+	private void drawObjects(Graphics g, ArrayList<objects.Object> objectList) {
+		for (int i = 0; i < objectList.size(); i++) {
+			objects.Object obj = objectList.get(i);
 			
-			if (!map.getTerrainData().get(i).equals("0")) {
-				BufferedImage tImage = images.get(map.getTerrainData().get(i));
-				g.drawImage(tImage, getX(x), getY(y), square, square, null);
-			}
+			BufferedImage img = obj.img;
 			
 			
-			x++;
-		}
-	}
-	
-	//draw buildings images
-	private void drawBuildings(Graphics g) {
-		for (Map.Entry<String,String> entry : map.getBuildingsData().entrySet()) {
-		    String key = entry.getKey().substring(1);
-		    String coordinates = entry.getValue();
-		    
-		    String[] field = coordinates.split(":");
-		    int x = Integer.parseInt(field[0]);
-		    int y = Integer.parseInt(field[1]);
-		    
-		    g.drawImage(images.get("building_"+key), getX(x), getY(y), square * 2, square * 2, null);
-		    
-		    
-		}
-	}
-	
-	//draw start line
-	private void drawLine(Graphics g) {
-		String direction = map.getLine().get("€direction");
-		int x = Integer.parseInt(map.getLine().get("€xline"));
-		int y = Integer.parseInt(map.getLine().get("€yline"));
-		int xSize, ySize;
-		
-		int addX = 0;
-		int addY = 0;
-		
-		if (direction.equals("left") || direction.equals("right")) {
-			xSize = (int) Math.floor(12 * coef);
-			ySize = square;
-		} else {
-			xSize = square;
-			ySize = (int) Math.floor(12 * coef);
-		}
-		
-		if (direction.equals("right")) addX = square - xSize;
-		if (direction.equals("down")) addY = square - ySize;
-		
-		
-		g.drawImage(images.get("line"), getX(x) + addX, getY(y) + addY, xSize, ySize, null);
-		
-	}
-	
-	//load lights
-	private void drawLights(Graphics g) {
-		int x = Integer.parseInt(map.getLine().get("€xlights"));
-		int y = Integer.parseInt(map.getLine().get("€ylights"));
-		
-		g.drawImage(images.get("lights_"+map.lightsColor), getX(x), getY(y), square, square, null);
-	}
-	
-	//draw movingObjects
-	private void drawMovingObjects(Graphics g) {
-		for (int i = 0; i < loading.moveAble.size(); i++) {
-			BufferedImage img = loading.moveAble.get(i).img;
-			int x = getX(0) + loading.moveAble.get(i).gridX * square + (int) Math.floor(loading.moveAble.get(i).squareX * coef);
-			int y = getY(0) + loading.moveAble.get(i).gridY * square + (int) Math.floor(loading.moveAble.get(i).squareY * coef);
+			int x = getX(0) + obj.gridX * square + (int) Math.floor(obj.squareX * coef);
+			int y = getY(0) + obj.gridY * square + (int) Math.floor(obj.squareY * coef);
 			int width = (int) Math.ceil(img.getWidth() * coef);
 			int height = (int) Math.ceil(img.getHeight() * coef);
-			
+
 			g.drawImage(img, x, y, width, height, null);
 		}
 	}

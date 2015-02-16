@@ -1,5 +1,7 @@
 package objects;
 
+import java.awt.Rectangle;
+
 import cars.CantLoadException;
 import cars.GameArea;
 
@@ -11,12 +13,18 @@ public abstract class MovingObject extends Object {
 	int maxSpeed = 80;
 	int speedChange = 1;
 	
+	boolean slow = true;
+	
 	public MovingObject(int x, int y, GameArea a) throws CantLoadException {
 		super(x, y, a);
 	}
 	
+	public MovingObject(int gX, int sX, int gY, int sY, GameArea a) throws CantLoadException {
+		super(gX, sX, gY, sY, a);
+	}
+	
 	//move the object
-	public void move() {
+	public Rectangle move() {
 		//e - It is the number of the direction in which the object should move according the keys etc. (direction number - explanation in the method changeSpeed(int))
 		int e = getEventNumber();
 		//Informations about the image before move
@@ -33,7 +41,7 @@ public abstract class MovingObject extends Object {
 		
 		//Informations about the image after move and redrawing
 		int[] newImg = {imgList.indexOf(img), getCoordinate(gridX,squareX), getCoordinate(gridY,squareY), img.getWidth(), img.getHeight()};
-		repaintObject(old,newImg);
+		return repaintObject(old,newImg);
 		
 	}
 	
@@ -65,13 +73,22 @@ public abstract class MovingObject extends Object {
 			speed += speedChange * speedSign();
 		} else if (Math.abs(relativeChange) > 0 && Math.abs(relativeChange) <= 2) {
 			//turning right or left 
+			int n;
 			if (relativeChange > 0) {
-				 setImage(getFieldNumber(imgN - 1));
+				n = getFieldNumber(imgN - 1);
 			 } else {
-				 setImage(getFieldNumber(imgN + 1));
+				n = getFieldNumber(imgN + 1);
 			 }
-			 
-			 speed = (int) Math.ceil(speed/10 * 9);
+			
+			float coef;
+			if (Math.round((float) n/2) == (float) n/2) {
+				coef = (float) 1.41;
+			} else {
+				coef = (float) (1/1.41);
+			}
+			
+			speed = (int) Math.ceil(coef * speed/10 * 7);
+			setImage(n);
 		} else if (Math.abs(relativeChange) == 4) {
 			//slowing down
 			speed -= 2 * speedChange * speedSign();
@@ -82,8 +99,9 @@ public abstract class MovingObject extends Object {
 	//This method change the position according to the direction
 	private void changePosition(int[] old) {
 		int newImg = imgList.indexOf(img);
-		float change = (float) speed/20;
-
+		float change = (float) speed/a.loading.pps * 2;
+		checkColision(newImg,change);
+		
 		switch (newImg) {
 		case 0: squareX -= change; break;
 		case 1: squareX -= change; squareY -= change; break;
@@ -96,6 +114,11 @@ public abstract class MovingObject extends Object {
 		}
 		
 		checkGrid();
+	}
+	
+	//This method is going to check collisions
+	private void checkColision(int imgN, float change) {
+		
 	}
 	
 	//This method controls whether the object is still on the same square
@@ -124,26 +147,47 @@ public abstract class MovingObject extends Object {
 	
 	//This method controls whether the speed is not higher than maximum
 	private void checkSpeed() {
-		if (Math.abs(speed) > maxSpeed) speed = speedSign() * maxSpeed;
+		int d = imgList.indexOf(img);
+		if (Math.round((float) d/2) == (float) d/2) {
+			if (Math.abs(speed) > maxSpeed) speed = speedSign() * maxSpeed;
+		} else {
+			if (Math.abs(speed) > (maxSpeed * (1/1.41))) speed = (int) (speedSign() * (maxSpeed* (1/1.41)));
+		}
+		
 	}
 	
-	//It counts a 'dirty area' and repaints it
-	private void repaintObject(int[] oldImage, int[] newImage) {
+	//It counts a 'dirty area' and returns its bounds
+	private Rectangle repaintObject(int[] oldImage, int[] newImage) {
+		Rectangle r = new Rectangle();
 		if (!oldImage.equals(newImage)) {
 			float change = speed/20;
-			int topX = Math.min(a.getX(0) + oldImage[1],a.getX(0) + newImage[1]);
-			int topY = Math.min(a.getY(0) + oldImage[2], a.getY(0) +  newImage[2]);
+			int direction = imgList.indexOf(img);
+			
+			int topX = Math.min(a.getX(0) + oldImage[1],a.getX(0) + newImage[1]) - 1;
+			int topY = Math.min(a.getY(0) + oldImage[2], a.getY(0) +  newImage[2]) - 1;
 			
 			int width;
-			if (topX == oldImage[1]) width = (int) Math.ceil(a.coef * img.getWidth() + Math.abs(change));
-			else width = (int) Math.ceil(a.coef * oldImage[3] + Math.abs(change));
+			if (direction != 2 && direction != 6) {
+				width = (int) Math.ceil(a.coef * (oldImage[3] + newImage[3] - Math.abs(change)));
+			} else {
+				width = Math.max(oldImage[3], newImage[3]);
+				width = (int) Math.ceil(a.coef * width);
+			}
+			width += 2;
 			
 			int height;
-			if (topY == oldImage[2]) height = (int) Math.ceil(a.coef * img.getHeight() + Math.abs(change));
-			else height = (int) Math.ceil(a.coef * oldImage[4] + Math.abs(change));
+			if (direction != 0 && direction != 4) {
+				height = (int) Math.ceil(a.coef * (oldImage[4] + newImage[4] - Math.abs(change)));
+			} else {
+				height = Math.max(oldImage[4], newImage[4]);
+				height = (int) Math.ceil(a.coef * height);
+			}
+			height += 2;
 			
-			a.repaint(topX,topY,width,height);
+			r.add(new Rectangle(topX, topY, width, height));
+			//a.repaint(topX,topY,width,height);
 		}
+		return r;
 	}
 	
 	//It counts a distance between the direction and "e" from

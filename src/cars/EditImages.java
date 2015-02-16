@@ -1,6 +1,7 @@
 package cars;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
 public class EditImages {
@@ -101,6 +102,105 @@ public class EditImages {
 		//true = reverse horizontally
 		//false = reverse vertically
 		return reverseImage(img, xReverse, !xReverse);
+	}
+	
+	public int getNumberOfCoveredPixels(int topX, int topY, BufferedImage cover, BufferedImage base, boolean checkOnly) {
+		int pixels = 0;
+		
+		int cvWidth = cover.getWidth();
+		int cvHeight = cover.getHeight();
+		int baseWidth = base.getWidth();
+		int baseHeight = base.getHeight();
+		
+		if (!(topX + cvWidth < 0 || topX > baseWidth - 1 || topY + baseHeight < 0 || topY > baseHeight -1)) {
+			Raster coverRaster = cover.getData();
+			Raster baseRaster = base.getData();
+			
+			int minCoverLeft = minCover(topX,cvWidth);
+			int minCoverTop = minCover(topY,cvHeight);
+			
+			int minBaseLeft = Math.max(0, topX);
+			int minBaseTop = Math.max(0, topY);
+			
+			int xIntersection = maxCover(topX, cvWidth, baseWidth, minCoverLeft);
+			int yIntersection = maxCover(topY, cvHeight, baseHeight, minCoverTop);
+			
+			for (int k = 0; k < xIntersection && ((pixels == 0 && checkOnly) || !checkOnly); k++) {
+				for (int l = 0; l < yIntersection && ((pixels == 0 && checkOnly) || !checkOnly); l++) {
+					int xc = minCoverLeft + k;
+					int yc = minCoverTop + l;
+					
+					int xb = minBaseLeft + k;
+					int yb = minBaseTop + l;
+					
+					int baseOpacity = baseRaster.getPixel(xb,yb,(int[]) null)[3];
+					int coverOpacity = coverRaster.getPixel(xc, yc, (int[]) null)[3];
+					
+					if (baseOpacity > 0 && coverOpacity > 0) {
+						pixels++;
+
+					}
+				}
+
+			}
+		}
+		
+		return pixels;
+	}
+	
+	public boolean checkColision(int topX, int topY, BufferedImage moovingImage, BufferedImage relativeTo) {
+		return (1 == getNumberOfCoveredPixels(topX, topY, moovingImage, relativeTo, true));
+	}
+	
+	public int pixelsToColision (int x, int y, int xSpeed, int ySpeed, BufferedImage colisedObject) {
+		int pixels = -1;
+		Raster r = colisedObject.getData();
+		int xSign, ySign;
+		int repeating = Math.min(Math.abs(xSpeed), Math.abs(ySpeed));
+		
+		if (xSpeed > 0) xSign = 1;
+		else if (xSpeed == 0) xSign = 0;
+		else xSign = -1;
+		
+		if (ySpeed > 0) ySign = 1;
+		else if (ySpeed == 0) ySign = 0;
+		else ySign = -1;
+		
+		for (int i = 0; i <= repeating && pixels == -1; i++) {
+			int currentX = x + i*xSign;
+			int currentY = y + i*ySign;
+			
+			if (!(currentX < 0 || currentX >= colisedObject.getWidth() || currentY < 0 || currentY >= colisedObject.getHeight())) {
+				if (r.getPixel(currentX, currentY, (int []) null)[3] > 0) pixels = i + 1;
+			}
+			
+		}
+		
+		return pixels;
+	}
+	
+	private int minCover(int top, int size) {
+		int minCover;
+		
+		if (top >= 0) {
+			minCover = 0;
+		} else {
+			minCover = -top;
+		}
+		
+		return minCover;
+	}
+	
+	private int maxCover(int top, int size, int baseSize, int min) {
+		int maxCover;
+		
+		if (top + size > baseSize - 1) {
+			maxCover = baseSize - top - min;
+		} else {
+			maxCover = size - min;
+		}
+		
+		return maxCover;
 	}
 	
 	//This method returns a specific color of the specific shade

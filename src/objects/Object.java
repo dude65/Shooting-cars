@@ -18,8 +18,8 @@ public abstract class Object {
 	
 	//Images
 	//imgList - It is a list for all of the images of the object
-	//img - This is an image which is being used
-	ArrayList<BufferedImage> imgList = new ArrayList<BufferedImage>();
+	//img - This is the image which is being used
+	public ArrayList<BufferedImage> imgList = new ArrayList<BufferedImage>();
 	public BufferedImage img;
 	
 	GameArea a;
@@ -32,8 +32,16 @@ public abstract class Object {
 		
 		squareX = x - gridX * 64;
 		squareY = y - gridY * 64;
+	}
+	
+	public Object(int gX, int sX, int gY, int sY, GameArea a) throws CantLoadException {
+		this.a = a;
 		
+		gridX = gX;
+		squareX = sX;
 		
+		gridY = gY;
+		squareY = sY;
 	}
 	
 	protected void setImage(int number) {
